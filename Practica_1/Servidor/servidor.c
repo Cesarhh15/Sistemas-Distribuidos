@@ -23,10 +23,10 @@
 /** Longitud del buffer  */
 #define BUFFERSIZE 512
 
-int AtiendeCliente(int socket, struct sockaddr_in addr);
-int DemasiadosClientes(int socket, struct sockaddr_in addr);
+int escuchaCliente(int socket, struct sockaddr_in addr);
+int esperaClientes(int socket, struct sockaddr_in addr);
 void error(int code, char *err);
-void reloj(int loop);
+void temporizador(int loop);
 
 int main(int argv, char** argc){
 
@@ -67,7 +67,7 @@ int main(int argv, char** argc){
 
     while(activated)
       {
-    reloj(loop);
+    temporizador(loop);
     /* select() se carga el valor de rfds */
     FD_ZERO(&rfds);
     FD_SET(socket_host, &rfds);
@@ -89,9 +89,9 @@ int main(int argv, char** argc){
             break;
           case 0:   /* Somos proceso hijo */
             if (childcount<MAX_CHILDS)
-              exitcode=AtiendeCliente(socket_client, client_addr);
+              exitcode=escuchaCliente(socket_client, client_addr);
             else
-              exitcode=DemasiadosClientes(socket_client, client_addr);
+              exitcode=esperaClientes(socket_client, client_addr);
 
             exit(exitcode); /* Código de salida */
           default:  /* Somos proceso padre */
@@ -134,7 +134,7 @@ int main(int argv, char** argc){
 }
 
     /* No usamos addr, pero lo dejamos para el futuro */
-int DemasiadosClientes(int socket, struct sockaddr_in addr)
+int esperaClientes(int socket, struct sockaddr_in addr)
 {
     char buffer[BUFFERSIZE];
     int bytecount;
@@ -152,7 +152,7 @@ int DemasiadosClientes(int socket, struct sockaddr_in addr)
     return 0;
 }
 
-int AtiendeCliente(int socket, struct sockaddr_in addr)
+int escuchaCliente(int socket, struct sockaddr_in addr)
 {
 
     char buffer[BUFFERSIZE];
@@ -216,7 +216,7 @@ printf("%s\n",buffer);
     return code;
 }
 
-void reloj(int loop)
+void temporizador(int loop)
 {
   if (loop==0)
     printf("[SERVIDOR] Esperando al cliente ");
